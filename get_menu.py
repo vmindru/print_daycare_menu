@@ -4,21 +4,24 @@ from logging import info as log_info  # noqa: F401
 from logging import info as log_debug  # noqa: F401
 from logging import warn as log_warn  # noqa: F401
 from logging import critical as log_critical  # noqa: F401
-import logging
 from os import path
+import logging
 import urllib2
 import urlparse
 import re
 import cups
 
 logging.basicConfig(level=logging.ERROR)
-
 url = "https://www.mszabovresky.cz/jidelnicek/"
 expr = "https://www.mszabovresky.cz/wp-content/uploads/.*\.pdf"
 download_path = '/tmp/'
 
 
-def download_file(url, download_path):
+def write_slogan():
+    print("Print daily menu")
+
+
+def url_download(url, download_path):
     data = urllib2.urlopen(url).read()
     parsed_url = urlparse.urlparse(url)
     file_name = path.basename(parsed_url.path)
@@ -29,18 +32,18 @@ def download_file(url, download_path):
     return file
 
 
-def main():
+def download_files(url):
     website = urllib2.urlopen(url)
     html = website.read()
     links = re.findall(expr, html)
     files = []
     for link in links:
         log_debug("downloading {}".format(link))
-        files.append(download_file(link, download_path))
+        files.append(url_download(link, download_path))
     return files
 
 
-def print_file(files):
+def print_files(files):
     cup = cups.Connection()
     printers = cup.getPrinters()
     my_printer = None
@@ -55,6 +58,10 @@ def print_file(files):
     return files, job
 
 
-if __name__ == "__main__":
-    files, print_job = print_file(main())
+def main():
+    files, print_job = print_files(download_files(url))
     print("{} are being printed as job: {}".format(files, print_job))
+
+
+if __name__ == "__main__":
+    main()
