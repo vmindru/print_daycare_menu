@@ -11,7 +11,7 @@ import urlparse
 import re
 import cups
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 url = "https://www.mszabovresky.cz/jidelnicek/"
 expr = "https://www.mszabovresky.cz/wp-content/uploads/.*\.pdf"
@@ -51,8 +51,10 @@ def print_file(files):
         log_critical("Printer not found, exiting")
         exit(1)
     else:
-        cup.printFiles(my_printer, files, "jidelnicek", {})
+        job = cup.printFiles(my_printer, files, "jidelnicek", {})
+    return files, job
 
 
 if __name__ == "__main__":
-    log_info(print_file(main()))
+    files, print_job = print_file(main())
+    print("{} are being printed as job: {}".format(files, print_job))
